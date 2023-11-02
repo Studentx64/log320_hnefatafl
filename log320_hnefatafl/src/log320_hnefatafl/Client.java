@@ -48,7 +48,7 @@ class Client {
     					System.out.println("Entrez votre coup : ");
     					String move = null;
     					move = console.readLine();				
-    					if(board.update(move, equipe, true)) {
+    					if(board.update(move, equipe)) {
     						System.out.println("Le coup choisi est valide.");
     						output.write(move.getBytes(),0,move.length());
     						output.flush();
@@ -65,7 +65,7 @@ class Client {
     			}
     			else {
     				String move = IA.jouer(board, equipe);
-    				if(board.update(move, equipe, true)) {
+    				if(board.update(move, equipe)) {
     					System.out.println("Le coup choisi est valide.");
     					output.write(move.getBytes(),0,move.length());
     					output.flush();
@@ -117,7 +117,7 @@ class Client {
 					System.out.println("Entrez votre coup : ");
 					String move = null;
 					move = console.readLine();				
-					if(board.update(move, equipe, true)) {
+					if(board.update(move, equipe,true)) {
 						System.out.println("Le coup choisi est valide.");
 						output.write(move.getBytes(),0,move.length());
 						output.flush();
