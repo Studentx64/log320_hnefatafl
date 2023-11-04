@@ -48,11 +48,19 @@ class Client {
     					System.out.println("Entrez votre coup : ");
     					String move = null;
     					move = console.readLine();				
-    					if(board.update(move, equipe)) {
+    					if(board.update(move, equipe, true)) {
     						System.out.println("Le coup choisi est valide.");
     						output.write(move.getBytes(),0,move.length());
     						output.flush();
+
     						//TODO : vérifier ici en fonction des règles si une pièce doit être retirée
+							if(board.isKingSurrounded()){
+								System.err.println("fin de la partie le roi est entourée");//action pour la fin de la partie 
+							}else{	
+
+
+							}
+
     						
     						board.draw();
     						moveSent = true;
@@ -65,11 +73,14 @@ class Client {
     			}
     			else {
     				String move = IA.jouer(board, equipe);
-    				if(board.update(move, equipe)) {
+    				if(board.update(move, equipe, true)) {
     					System.out.println("Le coup choisi est valide.");
     					output.write(move.getBytes(),0,move.length());
     					output.flush();
-    					//TODO : vérifier ici en fonction des règles si une pièce doit être retirée
+    					//TODO : vérifier ici en fonction des règles du hnefatafl si une pièce doit être retirée
+
+
+
     					board.draw();
     				}
     			}
@@ -117,11 +128,17 @@ class Client {
 					System.out.println("Entrez votre coup : ");
 					String move = null;
 					move = console.readLine();				
-					if(board.update(move, equipe,true)) {
+					if(board.update(move, equipe, true)) {
 						System.out.println("Le coup choisi est valide.");
 						output.write(move.getBytes(),0,move.length());
 						output.flush();
 						//TODO : vérifier ici en fonction des règles si une pièce doit être retirée
+						if(board.isKingSurrounded()){
+								System.err.println("fin de la partie le roi est entourée");//action pour la fin de la partie 
+							}else{	
+
+
+							}
 						
 						board.draw();
 						moveSent = true;
@@ -139,6 +156,13 @@ class Client {
 					output.write(move.getBytes(),0,move.length());
 					output.flush();
 					//TODO : vérifier ici en fonction des règles si une pièce doit être retirée
+					if(board.isKingSurrounded()){
+								System.err.println("fin de la partie le roi est entourée");//action pour la fin de la partie 
+							}else{	
+								
+//verifie s'il faut supprimer un piont et le supprime 
+								board.checkAndCapture( move, equipe);
+							}
 					board.draw();
 				}
 			}

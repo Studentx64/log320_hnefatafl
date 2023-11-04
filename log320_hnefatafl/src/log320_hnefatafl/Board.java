@@ -278,5 +278,89 @@ public class Board {
 			}
 		}
 	}
+
+	public boolean isKingSurrounded() {
+        // Trouver la position du roi
+        int kingX = -1;
+        int kingY = -1;
+        for (int i = 0; i < 13; i++) {
+            for (int j = 0; j < 13; j++) {
+                if (board[i][j] == 5) { // Supposons que 5 est le code pour le roi
+                    kingX = i;
+                    kingY = j;
+                    break;
+                }
+            }
+            if(kingX != -1) break; // Arrêtez de chercher si le roi est trouvé
+        }
+        
+        // Vérifier si le roi est entouré
+        if (kingX != -1 && kingY != -1) {
+            boolean surrounded = true;
+            int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+            for (int[] dir : directions) {
+                int newX = kingX + dir[0];
+                int newY = kingY + dir[1];
+                if (newX >= 0 && newX < 13 && newY >= 0 && newY < 13) {
+                    surrounded &= (board[newX][newY] == 2); // Supposons que 2 est le code pour les pions noirs
+                }
+            }
+            return surrounded;
+        }
+        return false;
+    }
+
+	//a tester 
+	 public void checkAndCapture(String coup,Equipe equipe) {
+        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}}; // RIGHT, LEFT, UP, DOWN
+         // La pièce qui vient d'être déplacée
+        coup = coup.trim();
+		
+		String[] parts = coup.split(" - ");
+		
+		
+		String[] coupArrivee = new String[2];
+		
+		
+		coupArrivee[0] = parts[1].substring(0,1);
+		coupArrivee[1] = parts[1].substring(1);
+	
+		// On récupère les coordonnées x et y des pièces en question en arrivé
+		int xArr = coord(coupArrivee[0]);
+		int yArr = Integer.parseInt(coupArrivee[1]);
+
+
+        for(int[] dir : directions) {
+            int xNeighbor = xArr-1 + dir[0];
+            int yNeighbor = yArr-1 + dir[1];
+            
+            if(xNeighbor >= 0 && xNeighbor < 13 && yNeighbor >= 0 && yNeighbor < 13) {
+                int neighborPiece = board[xNeighbor][yNeighbor];
+                
+                // Vérifie si la pièce voisine est de l'équipe adverse
+                if((equipe == Equipe.ROUGE && (neighborPiece == 2 || neighborPiece == 5)) || 
+                   (equipe == Equipe.NOIR && neighborPiece == 4)) {
+                    
+                    int xOpposite = xArr-1 - dir[0];
+                    int yOpposite = yArr-1 - dir[1];
+                    
+                    // Vérifie si la pièce opposée est soit une pièce alliée, le trône, ou une case de sortie
+                    if(xOpposite >= 0 && xOpposite < 13 && yOpposite >= 0 && yOpposite < 13) {
+                        int oppositePiece = board[xOpposite][yOpposite];
+                        
+                        if((equipe == Equipe.ROUGE && (oppositePiece == 4 || oppositePiece == 5 || oppositePiece == 9)) ||
+                           (equipe == Equipe.NOIR && (oppositePiece == 2 || oppositePiece == 5 || oppositePiece == 9)) ||
+                           (xOpposite == 0 && yOpposite == 0) || (xOpposite == 0 && yOpposite == 12) || 
+                           (xOpposite == 12 && yOpposite == 0) || (xOpposite == 12 && yOpposite == 12)) {
+                               
+                            // Capture la pièce adverse
+                            board[xNeighbor][yNeighbor] = 0;
+                            System.out.println("Pièce capturée en position: " + (xNeighbor+1) + ", " + (yNeighbor+1));
+                        }
+                    }
+                }
+            }
+        }
+    }
 	
 }
