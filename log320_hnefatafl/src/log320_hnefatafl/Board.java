@@ -142,6 +142,7 @@ public class Board {
 			int piece = getBoard()[xDep-1][yDep-1];
 			setValue(xArr-1, yArr-1, piece);
 			setValue(xDep-1, yDep-1, 0);
+			checkAndCapture(xArr-1, yArr-1, equipe);
 			//System.out.println("Plateau mis à jour.");
 		}
 		
@@ -302,65 +303,69 @@ public class Board {
                 int newX = kingX + dir[0];
                 int newY = kingY + dir[1];
                 if (newX >= 0 && newX < 13 && newY >= 0 && newY < 13) {
-                    surrounded &= (board[newX][newY] == 2); // Supposons que 2 est le code pour les pions noirs
+                    surrounded &= (board[newX][newY] == 4); // Supposons que 2 est le code pour les pions noirs
                 }
             }
             return surrounded;
         }
         return false;
     }
-
-	//a tester 
-	 public void checkAndCapture(String coup,Equipe equipe) {
-        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}}; // RIGHT, LEFT, UP, DOWN
-         // La pièce qui vient d'être déplacée
-        coup = coup.trim();
-		
-		String[] parts = coup.split(" - ");
-		
-		
-		String[] coupArrivee = new String[2];
-		
-		
-		coupArrivee[0] = parts[1].substring(0,1);
-		coupArrivee[1] = parts[1].substring(1);
 	
-		// On récupère les coordonnées x et y des pièces en question en arrivé
-		int xArr = coord(coupArrivee[0]);
-		int yArr = Integer.parseInt(coupArrivee[1]);
-
-
-        for(int[] dir : directions) {
-            int xNeighbor = xArr-1 + dir[0];
-            int yNeighbor = yArr-1 + dir[1];
-            
-            if(xNeighbor >= 0 && xNeighbor < 13 && yNeighbor >= 0 && yNeighbor < 13) {
-                int neighborPiece = board[xNeighbor][yNeighbor];
-                
-                // Vérifie si la pièce voisine est de l'équipe adverse
-                if((equipe == Equipe.ROUGE && (neighborPiece == 2 || neighborPiece == 5)) || 
-                   (equipe == Equipe.NOIR && neighborPiece == 4)) {
-                    
-                    int xOpposite = xArr-1 - dir[0];
-                    int yOpposite = yArr-1 - dir[1];
-                    
-                    // Vérifie si la pièce opposée est soit une pièce alliée, le trône, ou une case de sortie
-                    if(xOpposite >= 0 && xOpposite < 13 && yOpposite >= 0 && yOpposite < 13) {
-                        int oppositePiece = board[xOpposite][yOpposite];
-                        
-                        if((equipe == Equipe.ROUGE && (oppositePiece == 4 || oppositePiece == 5 || oppositePiece == 9)) ||
-                           (equipe == Equipe.NOIR && (oppositePiece == 2 || oppositePiece == 5 || oppositePiece == 9)) ||
-                           (xOpposite == 0 && yOpposite == 0) || (xOpposite == 0 && yOpposite == 12) || 
-                           (xOpposite == 12 && yOpposite == 0) || (xOpposite == 12 && yOpposite == 12)) {
-                               
-                            // Capture la pièce adverse
-                            board[xNeighbor][yNeighbor] = 0;
-                            System.out.println("Pièce capturée en position: " + (xNeighbor+1) + ", " + (yNeighbor+1));
-                        }
-                    }
-                }
-            }
-        }
-    }
+    public void checkAndCapture(int xArr, int yArr, Equipe equipe) {
+		int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}}; // RIGHT, LEFT, UP, DOWN
+	
+		for (int[] dir : directions) {
+			int xNeighbor = xArr + dir[0];
+			int yNeighbor = yArr + dir[1];
+	
+			// Vérifie si les coordonnées du voisin sont valides
+			if (xNeighbor >= 0 && xNeighbor < 13 && yNeighbor >= 0 && yNeighbor < 13) {
+				int neighborPiece = board[xNeighbor][yNeighbor];
+	
+				// Vérifie si la pièce voisine est de l'équipe adverse
+				if (isEnemyPiece(neighborPiece, equipe)) {
+					int xOpposite = xNeighbor + dir[0];
+					int yOpposite = yNeighbor + dir[1];
+	
+					// Vérifie si les coordonnées de la pièce opposée sont valides
+					if (xOpposite >= 0 && xOpposite < 13 && yOpposite >= 0 && yOpposite < 13) {
+						int oppositePiece = board[xOpposite][yOpposite];
+	
+						// Vérifie si la pièce opposée est une pièce alliée ou un élément spécial (comme le trône ou les coins)
+						if (isFriendlyPiece(oppositePiece, equipe) || isSpecialTile(xOpposite, yOpposite)) {
+							// Capture la pièce
+							setValue(xNeighbor, yNeighbor, 0);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	private boolean isEnemyPiece(int piece, Equipe equipe) {
+		if (equipe == Equipe.ROUGE) {
+			return piece == 2 || piece == 5; 
+		} else if (equipe == Equipe.NOIR) {
+			return piece == 4;
+		}
+		return false;
+	}
+	
+	private boolean isFriendlyPiece(int piece, Equipe equipe) {
+		if (equipe == Equipe.ROUGE) {
+			return piece == 4;
+		} else if (equipe == Equipe.NOIR) {
+			return piece == 2 || piece == 5; 
+		}
+		return false;
+	}
+	
+	private boolean isSpecialTile(int x, int y) {
+		// Assume that the throne is at (7,7) and the corners are at (0,0), (0,12), (12,0), (12,12)
+		if ((x == 6 && y == 6) || (x == 0 && y == 0) || (x == 0 && y == 12) || (x == 12 && y == 0) || (x == 12 && y == 12)) {
+			return true;
+		}
+		return false;
+	}
 	
 }
